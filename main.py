@@ -24,11 +24,27 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    models.Base.metadata.create_all(bind=models.engine)
+    try:
+        models.Base.metadata.create_all(bind=models.engine)
+        print("✅ Database tables created successfully")
+    except Exception as e:
+        print(f"❌ Database startup error: {e}")
+        raise
 
 @app.get("/")
 def read_root():
-    return {"message": "Todo API is running"}
+    return {"message": "Todo API is running", "status": "healthy"}
+
+@app.get("/health")
+def health_check():
+    try:
+        # Test database connection
+        db = models.SessionLocal()
+        db.execute("SELECT 1")
+        db.close()
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
 @app.get("/tasks")
 def get_tasks(
