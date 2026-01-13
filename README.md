@@ -196,11 +196,16 @@ NEXT_PUBLIC_API_URL=https://your-backend.railway.app
 
 ### 📱 Live Application URLs
 
-After deployment:
-- **🌐 Frontend Application**: `https://your-app.vercel.app`
-- **⚙️ Backend API**: `https://your-app.railway.app`
-- **📚 API Documentation**: `https://your-app.railway.app/docs`
-- **🔗 GitHub Repository**: Your repository URL
+**Current Deployment:**
+- **🌐 Frontend Application**: https://frontend-gamma-seven-16.vercel.app
+- **⚙️ Backend API**: https://todowebapp1-production.up.railway.app
+- **📚 API Documentation**: https://todowebapp1-production.up.railway.app/docs
+- **🔗 GitHub Repository**: https://github.com/ikitcya/TodoWebApp1
+
+**Alternative URLs:**
+- **Frontend (Direct)**: https://frontend-l4yd09quv-maksyms-projects-d10f7576.vercel.app
+- **API Endpoints**: https://todowebapp1-production.up.railway.app/tasks
+- **OpenAPI Schema**: https://todowebapp1-production.up.railway.app/openapi.json
 
 ## 🏆 Project Highlights
 
