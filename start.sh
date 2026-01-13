@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Railway deployment script for TodoWebApp
-
 echo "🚀 Starting TodoWebApp backend deployment..."
 
 # Show environment info
