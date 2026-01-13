@@ -31,8 +31,12 @@ def on_startup():
         print(f"🚀 Starting Todo API on port {port}...")
         print(f"🔗 Database URL: {os.getenv('DATABASE_URL', 'SQLite')}")
         # Create database tables
-        models.Base.metadata.create_all(bind=models.engine)
-        print("✅ Database tables created successfully")
+        try:
+            models.Base.metadata.create_all(bind=models.engine)
+            print("✅ Database tables created successfully")
+        except Exception as db_error:
+            print(f"⚠️ Database setup warning: {db_error}")
+            print("🔄 Continuing without database setup...")
         
     except Exception as e:
         print(f"❌ Startup error: {e}")
