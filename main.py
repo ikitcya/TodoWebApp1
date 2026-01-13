@@ -6,6 +6,9 @@ from typing import List, Optional
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import models
+import schemas
+import crud
 
 load_dotenv()
 
@@ -24,23 +27,23 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     try:
-        print("🚀 Starting Todo API...")
+        port = os.getenv("PORT", "8000")
+        print(f"🚀 Starting Todo API on port {port}...")
         print(f"🔗 Database URL: {os.getenv('DATABASE_URL', 'SQLite')}")
-        
-        # Skip database setup for now to test basic functionality
-        print("⚠️  Skipping database setup for healthcheck test")
+        # Create database tables
+        models.Base.metadata.create_all(bind=models.engine)
+        print("✅ Database tables created successfully")
         
     except Exception as e:
         print(f"❌ Startup error: {e}")
-        # Don't raise error to allow healthcheck to pass
 
 @app.get("/")
 def read_root():
-    return {"message": "Todo API is running", "status": "healthy", "timestamp": str(datetime.now())}
+    return {"message": "Todo API is running", "status": "healthy", "port": int(os.getenv("PORT", "8000"))}
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "Todo API", "timestamp": str(datetime.now())}
+    return {"status": "healthy", "service": "Todo API", "port": int(os.getenv("PORT", "8000"))}
 
 @app.get("/ready")
 def readiness_check():
@@ -56,21 +59,22 @@ def readiness_check():
         return {"status": "not ready", "database": "disconnected", "error": str(e)}
 
 @app.get("/tasks")
-def get_tasks():
-    # Return mock data for now
-    return [
-        {
-            "id": 1,
-            "title": "Sample Task",
-            "description": "This is a sample task",
-            "completed": False,
-            "priority": 5,
-            "category": "Sample",
-            "due_date": None,
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
-        }
-    ]
+def get_tasks(
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    sort_by: Optional[str] = Query("created_at"),
+    sort_order: Optional[str] = Query("desc"),
+    db: Session = Depends(models.get_db)
+):
+    query = schemas.TaskQuery(
+        search=search,
+        status=status,
+        category=category,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
+    return crud.get_tasks(db, query)
 
 @app.post("/tasks")
 def create_task(task: schemas.TaskCreate, db: Session = Depends(models.get_db)):
@@ -123,4 +127,6 @@ def get_categories(db: Session = Depends(models.get_db)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", "8000"))
+    print(f"🌐 Starting server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
