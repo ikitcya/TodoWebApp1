@@ -1,8 +1,13 @@
 {
+  "root": "frontend",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "api/index.py"
+      "destination": "https://todowebapp1-production.up.railway.app/api/$1"
     }
   ]
 }
