@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import List, Optional
+from datetime import datetime
 import models
 import schemas
 import crud
@@ -25,26 +27,40 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     try:
+        print("🚀 Starting Todo API...")
+        print(f"🔗 Database URL: {os.getenv('DATABASE_URL', 'SQLite')}")
+        
+        # Create database tables
         models.Base.metadata.create_all(bind=models.engine)
         print("✅ Database tables created successfully")
+        
+        # Test database connection
+        db = models.SessionLocal()
+        db.execute(text("SELECT 1"))
+        db.close()
+        print("✅ Database connection verified")
+        
     except Exception as e:
-        print(f"❌ Database startup error: {e}")
+        print(f"❌ Startup error: {e}")
         raise
 
 @app.get("/")
 def read_root():
-    return {"message": "Todo API is running", "status": "healthy"}
+    return {"message": "Todo API is running", "status": "healthy", "timestamp": str(datetime.now())}
 
 @app.get("/health")
 def health_check():
+    return {"status": "healthy", "service": "Todo API", "timestamp": str(datetime.now())}
+
+@app.get("/ready")
+def readiness_check():
     try:
-        # Test database connection
         db = models.SessionLocal()
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db.close()
-        return {"status": "healthy", "database": "connected"}
+        return {"status": "ready", "database": "connected"}
     except Exception as e:
-        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+        return {"status": "not ready", "database": "disconnected", "error": str(e)}
 
 @app.get("/tasks")
 def get_tasks(
